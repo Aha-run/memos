@@ -324,20 +324,6 @@ paths:
           in: query
           required: false
           type: string
-        - name: view
-          description: |-
-            The view of the memo.
-
-             - MEMO_VIEW_FULL: The full view of the memo. Includes all fields.
-             - MEMO_VIEW_METADATA_ONLY: The metadata only view of the memo. Excludes the content/snippet fields.
-          in: query
-          required: false
-          type: string
-          enum:
-            - MEMO_VIEW_UNSPECIFIED
-            - MEMO_VIEW_FULL
-            - MEMO_VIEW_METADATA_ONLY
-          default: MEMO_VIEW_UNSPECIFIED
       tags:
         - MemoService
     post:
@@ -381,7 +367,7 @@ paths:
           type: string
       tags:
         - MemoService
-  /api/v1/reactions/{reactionId}:
+  /api/v1/reactions/{id}:
     delete:
       summary: DeleteMemoReaction deletes a reaction for a memo.
       operationId: MemoService_DeleteMemoReaction
@@ -396,7 +382,10 @@ paths:
           schema:
             $ref: '#/definitions/googlerpcStatus'
       parameters:
-        - name: reactionId
+        - name: id
+          description: |-
+            The id of the reaction.
+            Refer to the `Reaction.id`.
           in: path
           required: true
           type: integer
@@ -507,14 +496,6 @@ paths:
           description: An unexpected error response.
           schema:
             $ref: '#/definitions/googlerpcStatus'
-      parameters:
-        - name: filter
-          description: |-
-            Filter is used to filter memos to calculate stats.
-            Same as `ListMemosRequest.filter`.
-          in: query
-          required: false
-          type: string
       tags:
         - UserService
   /api/v1/users:search:
@@ -1509,13 +1490,6 @@ paths:
           required: true
           type: string
           pattern: users/[^/]+
-        - name: filter
-          description: |-
-            Filter is used to filter memos to calculate stats.
-            Same as `ListMemosRequest.filter`.
-          in: query
-          required: false
-          type: string
       tags:
         - UserService
   /api/v1/{parent}/tags/{tag}:
@@ -1868,10 +1842,13 @@ definitions:
       linkCount:
         type: integer
         format: int32
-      taskCount:
+      codeCount:
         type: integer
         format: int32
-      codeCount:
+      todoCount:
+        type: integer
+        format: int32
+      undoCount:
         type: integer
         format: int32
   WorkspaceStorageSettingS3Config:
@@ -1887,6 +1864,8 @@ definitions:
         type: string
       bucket:
         type: string
+      usePathStyle:
+        type: boolean
     title: 'Reference: https://developers.cloudflare.com/r2/examples/aws/aws-sdk-go/'
   apiHttpBody:
     type: object
@@ -1953,14 +1932,14 @@ definitions:
   apiv1ActivityMemoCommentPayload:
     type: object
     properties:
-      memoId:
-        type: integer
-        format: int32
-        description: The memo id of comment.
-      relatedMemoId:
-        type: integer
-        format: int32
-        description: The memo id of related memo.
+      memo:
+        type: string
+        description: |-
+          The memo name of comment.
+          Refer to `Memo.name`.
+      relatedMemo:
+        type: string
+        description: The name of related memo.
     description: ActivityMemoCommentPayload represents the payload of a memo comment activity.
   apiv1ActivityPayload:
     type: object
@@ -2782,16 +2761,6 @@ definitions:
       - REFERENCE
       - COMMENT
     default: TYPE_UNSPECIFIED
-  v1MemoView:
-    type: string
-    enum:
-      - MEMO_VIEW_UNSPECIFIED
-      - MEMO_VIEW_FULL
-      - MEMO_VIEW_METADATA_ONLY
-    default: MEMO_VIEW_UNSPECIFIED
-    description: |2-
-       - MEMO_VIEW_FULL: The full view of the memo. Includes all fields.
-       - MEMO_VIEW_METADATA_ONLY: The metadata only view of the memo. Excludes the content/snippet fields.
   v1Node:
     type: object
     properties:
@@ -2947,6 +2916,9 @@ definitions:
           Format: users/{user}
       contentId:
         type: string
+        description: |-
+          The content identifier.
+          For memo, it should be the `Memo.name`.
       reactionType:
         type: string
   v1ReferencedContentNode:

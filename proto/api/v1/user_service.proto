@@ -192,16 +192,13 @@ message UserStats {
 
   message MemoTypeStats {
     int32 link_count = 1;
-    int32 task_count = 2;
-    int32 code_count = 3;
+    int32 code_count = 2;
+    int32 todo_count = 3;
+    int32 undo_count = 4;
   }
 }
 
-message ListAllUserStatsRequest {
-  // Filter is used to filter memos to calculate stats.
-  // Same as `ListMemosRequest.filter`.
-  string filter = 1;
-}
+message ListAllUserStatsRequest {}
 
 message ListAllUserStatsResponse {
   repeated UserStats user_stats = 1;
@@ -211,10 +208,6 @@ message GetUserStatsRequest {
   // The name of the user.
   // Format: users/{user}.
   string name = 1;
-
-  // Filter is used to filter memos to calculate stats.
-  // Same as `ListMemosRequest.filter`.
-  string filter = 2;
 }
 
 message UserSetting {
